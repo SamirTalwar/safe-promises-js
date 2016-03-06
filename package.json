@@ -2,7 +2,7 @@
   "name": "safe-promise-js",
   "version": "0.1.0",
   "description": "Promises that enforce catching.",
-  "main": "lib/safe-promise.js",
+  "main": "lib/safe-promises.js",
   "scripts": {
     "test": "mocha lib test"
   },

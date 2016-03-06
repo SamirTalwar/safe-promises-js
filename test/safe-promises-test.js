@@ -2,12 +2,12 @@
 
 let expect = require('chai').expect;
 
-let SafePromise = require('../lib/safe-promise');
+let safePromises = require('../lib/safe-promises');
 
-describe('SafePromise', () => {
+describe('a safe promise', () => {
     it('evaluates just like a regular promise', (done) => {
-        let promise = SafePromise.failWith(done);
-        promise.resolve(7)
+        let SafePromise = safePromises.failWith(done);
+        SafePromise.resolve(7)
             .then(value => value + 1)
             .then(value => {
                 expect(value).to.equal(8);
@@ -18,19 +18,19 @@ describe('SafePromise', () => {
 
     it('passes rejected promises to the failure handler', (done) => {
         let expectedError = new Error('I am not good.');
-        let promise = SafePromise.failWith(actualError => {
+        let SafePromise = safePromises.failWith(actualError => {
             expect(actualError).to.equal(expectedError);
             done();
         });
-        promise.reject(expectedError)
+        SafePromise.reject(expectedError)
             .then(expectARejection(done))
             .perform();
     });
 
     it('does not worry about caught rejections', (done) => {
         let expectedError = new Error('I am so broken.');
-        let promise = SafePromise.failWith(done);
-        promise.reject(expectedError)
+        let SafePromise = safePromises.failWith(done);
+        SafePromise.reject(expectedError)
             .then(expectARejection(done))
             .catch(actualError => {
                 expect(actualError).to.equal(expectedError);
@@ -41,8 +41,8 @@ describe('SafePromise', () => {
 
     it('handles thrown exceptions as expected', (done) => {
         let expectedError = new Error('Whoops.');
-        let promise = SafePromise.failWith(done);
-        promise.resolve(99)
+        let SafePromise = safePromises.failWith(done);
+        SafePromise.resolve(99)
             .then(() => { throw expectedError; })
             .then(expectARejection(done))
             .catch(actualError => {
@@ -53,8 +53,8 @@ describe('SafePromise', () => {
     });
 
     it('can be constructed as with `new Promise`', (done) => {
-        let promise = SafePromise.failWith(done);
-        promise.new((resolve, reject) => resolve(42))
+        let SafePromise = safePromises.failWith(done);
+        new SafePromise((resolve, reject) => resolve(42))
             .then(value => {
                 expect(value).to.equal(42);
                 done();
