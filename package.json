@@ -2,9 +2,9 @@
   "name": "safe-promise-js",
   "version": "0.1.0",
   "description": "Promises that enforce catching.",
-  "main": "src/index.js",
+  "main": "lib/safe-promise.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha lib test"
   },
   "repository": {
     "type": "git",
@@ -16,5 +16,9 @@
     "url": "https://github.com/SamirTalwar/safe-promises-js/issues"
   },
   "homepage": "https://github.com/SamirTalwar/safe-promises-js#readme",
-  "engine": "node"
+  "engine": "node",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5"
+  }
 }
