@@ -1,0 +1,20 @@
+{
+  "name": "safe-promise-js",
+  "version": "0.1.0",
+  "description": "Promises that enforce catching.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SamirTalwar/safe-promises-js.git"
+  },
+  "author": "Samir Talwar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SamirTalwar/safe-promises-js/issues"
+  },
+  "homepage": "https://github.com/SamirTalwar/safe-promises-js#readme",
+  "engine": "node"
+}
