@@ -52,6 +52,16 @@ describe('SafePromise', () => {
             .perform();
     });
 
+    it('can be constructed as with `new Promise`', (done) => {
+        let promise = SafePromise.failWith(done);
+        promise.new((resolve, reject) => resolve(42))
+            .then(value => {
+                expect(value).to.equal(42);
+                done();
+            })
+            .perform();
+    });
+
     function expectARejection(done) {
         return value => {
             done(new Error(`Expected a rejected promise, but got ${value}.`));
