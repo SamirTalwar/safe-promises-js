@@ -15,4 +15,27 @@ describe('SafePromise', () => {
             })
             .perform();
     });
+
+    it('passes rejected promises to the failure handler', (done) => {
+        let promise = SafePromise.failWith(() => done());
+        promise.reject(new Error('I am not good.'))
+            .then(expectARejection(done))
+            .perform();
+    });
+
+    it('does not worry about caught rejections', (done) => {
+        let promise = SafePromise.failWith(done);
+        promise.reject(new Error('I am so broken.'))
+            .then(expectARejection(done))
+            .catch(() => {
+                done();
+            })
+            .perform();
+    });
+
+    function expectARejection(done) {
+        return value => {
+            done(new Error(`Expected a rejected promise, but got ${value}.`));
+        };
+    }
 });
