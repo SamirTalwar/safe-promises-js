@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/SamirTalwar/safe-promises-js.svg?branch=master)](https://travis-ci.org/SamirTalwar/safe-promises-js)
 [![npm version](https://badge.fury.io/js/safe-promises.svg)](https://badge.fury.io/js/safe-promises)
 
 # Safe Promises in JavaScript
