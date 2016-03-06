@@ -1,6 +1,16 @@
+[![npm version](https://badge.fury.io/js/safe-promises.svg)](https://badge.fury.io/js/safe-promises)
+
 # Safe Promises in JavaScript
 
 It's too easy to forget to catch a promise. `SafePromise` doesn't let you forget.
+
+## Installation
+
+Just run:
+
+    $ npm install --save safe-promises
+
+## Examples
 
 By splitting the construction of the promise pipeline from the execution, we can ensure that we always pass in a final `catch` handler. It looks something like this:
 
