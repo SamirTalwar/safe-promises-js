@@ -17,17 +17,36 @@ describe('SafePromise', () => {
     });
 
     it('passes rejected promises to the failure handler', (done) => {
-        let promise = SafePromise.failWith(() => done());
-        promise.reject(new Error('I am not good.'))
+        let expectedError = new Error('I am not good.');
+        let promise = SafePromise.failWith(actualError => {
+            expect(actualError).to.equal(expectedError);
+            done();
+        });
+        promise.reject(expectedError)
             .then(expectARejection(done))
             .perform();
     });
 
     it('does not worry about caught rejections', (done) => {
+        let expectedError = new Error('I am so broken.');
         let promise = SafePromise.failWith(done);
-        promise.reject(new Error('I am so broken.'))
+        promise.reject(expectedError)
             .then(expectARejection(done))
-            .catch(() => {
+            .catch(actualError => {
+                expect(actualError).to.equal(expectedError);
+                done();
+            })
+            .perform();
+    });
+
+    it('handles thrown exceptions as expected', (done) => {
+        let expectedError = new Error('Whoops.');
+        let promise = SafePromise.failWith(done);
+        promise.resolve(99)
+            .then(() => { throw expectedError; })
+            .then(expectARejection(done))
+            .catch(actualError => {
+                expect(actualError).to.equal(expectedError);
                 done();
             })
             .perform();
