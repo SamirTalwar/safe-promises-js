@@ -18,3 +18,13 @@ By splitting the construction of the promise pipeline from the execution, we can
         .perform();
 
 That will fail, and even though we haven't provided an explicit `catch` for the promise, we've constructed it with a failure handler that logs to `console.error`, so we know we'll never have to worry about it.
+
+If you need different sorts of error handlers, just construct different `SafePromise` classes.
+
+    let UIPromise = safePromises.failWith((error) => {
+        $('#error').text(error.message).show();
+    });
+
+    UIPromise.resolve(user.name)
+        .then(lookupUser)
+        .perform();
