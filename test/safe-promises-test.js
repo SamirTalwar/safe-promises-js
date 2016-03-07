@@ -73,6 +73,18 @@ describe('a safe promise', () => {
             .catch(done);
     });
 
+    it('chains with normal Promises as well as SafePromises', (done) => {
+        let SafePromise = safePromises.failWith(done);
+        new SafePromise((resolve, reject) => resolve(42))
+            .then(value => Promise.resolve(value * 2))
+            .then(value => SafePromise.resolve(value + 16))
+            .then(value => {
+                expect(value).to.equal(100);
+                done();
+            })
+            .perform();
+    });
+
     function expectARejection(done) {
         return value => {
             done(new Error(`Expected a rejected promise, but got ${value}.`));
