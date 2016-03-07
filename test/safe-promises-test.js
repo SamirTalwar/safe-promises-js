@@ -62,6 +62,17 @@ describe('a safe promise', () => {
             .perform();
     });
 
+    it('returns the Promise value on performing for further chaining', (done) => {
+        let SafePromise = safePromises.failWith(done);
+        SafePromise.resolve(12)
+            .perform()
+            .then(value => {
+                expect(value).to.equal(12);
+                done();
+            })
+            .catch(done);
+    });
+
     function expectARejection(done) {
         return value => {
             done(new Error(`Expected a rejected promise, but got ${value}.`));
