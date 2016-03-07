@@ -122,9 +122,72 @@ describe('SafePromise', () => {
         });
     });
 
-    function delayedResolutionOf(value) {
+    describe('.race', () => {
+        it('resolves as soon as the first Promise resolves', (done) => {
+            let SafePromise = safePromises.failWith(done);
+            SafePromise.race([
+                new Promise(delayedResolutionOf(10, 0)),
+                new SafePromise(delayedResolutionOf(20, 1000))
+            ]).then(value => {
+                expect(value).to.equal(10);
+                done();
+            })
+            .perform();
+        });
+
+        it('resolves as soon as the first SafePromise resolves', (done) => {
+            let SafePromise = safePromises.failWith(done);
+            SafePromise.race([
+                new Promise(delayedResolutionOf(10, 1000)),
+                new SafePromise(delayedResolutionOf(20, 0))
+            ])
+                .then(value => {
+                    expect(value).to.equal(20);
+                    done();
+                })
+                .perform();
+        });
+
+        it('rejects as soon as the first Promise rejects', (done) => {
+            let expectedError = new Error('You lost.');
+            let SafePromise = safePromises.failWith(actualError => {
+                expect(actualError).to.equal(expectedError);
+                done();
+            });
+
+            SafePromise.race([
+                new Promise(delayedRejectionOf(expectedError, 0)),
+                new SafePromise(delayedResolutionOf(20, 1000))
+            ])
+                .then(expectARejection(done))
+                .perform();
+        });
+
+        it('rejects as soon as the first SafePromise rejects', (done) => {
+            let expectedError = new Error('You lost.');
+            let SafePromise = safePromises.failWith(actualError => {
+                expect(actualError).to.equal(expectedError);
+                done();
+            });
+
+            SafePromise.race([
+                new Promise(delayedResolutionOf(10, 1000)),
+                new SafePromise(delayedRejectionOf(expectedError, 0))
+            ])
+                .then(expectARejection(done))
+                .perform();
+        });
+    });
+
+    function delayedResolutionOf(value, delay) {
         return (resolve, reject) => {
-            setTimeout(() => resolve(value), 1);
+            setTimeout(resolve, delay || 1, value);
+        };
+    }
+
+    function delayedRejectionOf(error, delay) {
+        return (resolve, reject) => {
+            setTimeout(reject, delay || 1, error);
         };
     }
 
