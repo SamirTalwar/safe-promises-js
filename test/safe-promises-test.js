@@ -4,7 +4,7 @@ let expect = require('chai').expect;
 
 let safePromises = require('../lib/safe-promises');
 
-describe('a safe promise', () => {
+describe('SafePromise', () => {
     it('evaluates just like a regular promise', (done) => {
         let SafePromise = safePromises.failWith(done);
         SafePromise.resolve(7)
@@ -22,6 +22,7 @@ describe('a safe promise', () => {
             expect(actualError).to.equal(expectedError);
             done();
         });
+
         SafePromise.reject(expectedError)
             .then(expectARejection(done))
             .perform();
@@ -84,6 +85,48 @@ describe('a safe promise', () => {
             })
             .perform();
     });
+
+    describe('.all', () => {
+        it('resolves when all promises have been resolved',(done) => {
+            let SafePromise = safePromises.failWith(done);
+            SafePromise.all([
+                1,
+                Promise.resolve(2),
+                SafePromise.resolve(3),
+                new Promise(delayedResolutionOf(4)),
+                new SafePromise(delayedResolutionOf(5))
+            ])
+                .then(array => {
+                    expect(array).to.deep.equal([1, 2, 3, 4, 5]);
+                    done();
+                })
+                .perform();
+        });
+
+        it('rejects on a single rejection',(done) => {
+            let expectedError = new Error('I don\'t think so.');
+            let SafePromise = safePromises.failWith(actualError => {
+                expect(actualError).to.equal(expectedError);
+                done();
+            });
+
+            SafePromise.all([
+                1,
+                Promise.resolve(2),
+                SafePromise.reject(expectedError),
+                new Promise(delayedResolutionOf(4)),
+                new SafePromise(delayedResolutionOf(5))
+            ])
+                .then(expectARejection(done))
+                .perform();
+        });
+    });
+
+    function delayedResolutionOf(value) {
+        return (resolve, reject) => {
+            setTimeout(() => resolve(value), 1);
+        };
+    }
 
     function expectARejection(done) {
         return value => {
