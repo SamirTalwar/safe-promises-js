@@ -1,6 +1,6 @@
 {
   "name": "safe-promises",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Promises that enforce catching.",
   "main": "lib/safe-promises.js",
   "scripts": {
