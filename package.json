@@ -4,7 +4,7 @@
   "description": "Promises that enforce catching.",
   "main": "lib/safe-promises.js",
   "scripts": {
-    "test": "mocha lib test && (cd test-npm && npm test)"
+    "test": "mocha lib test && (cd test-npm && npm install && npm test)"
   },
   "repository": {
     "type": "git",
