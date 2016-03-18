@@ -53,16 +53,6 @@ describe('SafePromise', () => {
             .perform();
     });
 
-    it('can be constructed as with `new Promise`', (done) => {
-        let SafePromise = safePromises.failWith(done);
-        new SafePromise((resolve, reject) => resolve(42))
-            .then(value => {
-                expect(value).to.equal(42);
-                done();
-            })
-            .perform();
-    });
-
     it('returns the Promise value on performing for further chaining', (done) => {
         let SafePromise = safePromises.failWith(done);
         SafePromise.resolve(12)
@@ -84,6 +74,30 @@ describe('SafePromise', () => {
                 done();
             })
             .perform();
+    });
+
+    describe('construction as with `new Promise`', () => {
+        it('resolves', (done) => {
+            let SafePromise = safePromises.failWith(done);
+            new SafePromise((resolve, reject) => resolve(42))
+                .then(value => {
+                    expect(value).to.equal(42);
+                    done();
+                })
+                .perform();
+        });
+
+        it('rejects', (done) => {
+            let expectedError = new Error('Oh no!');
+            let SafePromise = safePromises.failWith(actualError => {
+                expect(actualError).to.equal(expectedError);
+                done();
+            });
+
+            new SafePromise((resolve, reject) => reject(expectedError))
+                .then(expectARejection(done))
+                .perform();
+        });
     });
 
     describe('.all', () => {
