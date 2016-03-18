@@ -1,0 +1,15 @@
+{
+  "name": "safe-promises-test-npm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./test.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chai": "^3.5.0",
+    "safe-promises": "0.1.1"
+  }
+}
