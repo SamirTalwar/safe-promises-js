@@ -3,7 +3,12 @@
 
 # Safe Promises in JavaScript
 
-It's too easy to forget to catch a promise. `SafePromise` doesn't let you forget.
+Promises go wrong too often.
+
+  * It's too easy to forget to catch a promise.
+  * Sometimes promises just stop in their tracks.
+
+`SafePromise` doesn't let you forget, and makes sure to time out with an error.
 
 ## Installation
 
@@ -18,7 +23,7 @@ By splitting the construction of the promise pipeline from the execution, we can
 ```javascript
 let safePromises = require('safe-promises');
 
-let SafePromise = safePromises.failWith(console.error);
+let SafePromise = safePromises.timeOutAfter(1000).failWith(console.error);
 
 new SafePromise((resolve, reject) => resolve(5))
     .then((value) => {
@@ -32,10 +37,10 @@ new SafePromise((resolve, reject) => resolve(5))
 
 That will fail, and even though we haven't provided an explicit `catch` for the promise, we've constructed it with a failure handler that logs to `console.error`, so we know we'll never have to worry about it.
 
-If you need different sorts of error handlers, just construct different `SafePromise` classes.
+If you need different sorts of error handlers, just construct different `SafePromise` classes. Here, we're setting a timeout of 5 seconds, after which the default timeout error will be passed to the error handler instead.
 
 ```javascript
-let UIPromise = safePromises.failWith((error) => {
+let UIPromise = safePromises.timeOutAfter(5000).failWith((error) => {
     $('#error').text(error.message).show();
 });
 
