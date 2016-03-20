@@ -269,6 +269,20 @@ describe('SafePromise', () => {
                 .catch(i => new Promise(delayedResolutionOf(i + 1, 10)))
                 .perform();
         });
+
+        it('allows for SafePromises in the timeout calculation', (done) => {
+            let SafePromise = safePromises.timeOutAfter(20).failWith(actualError => {
+                expect(actualError.message).to.equal('Timed out after 20 milliseconds.');
+                done();
+            });
+
+            SafePromise.resolve(0)
+                .then(i => new SafePromise(delayedRejectionOf(i + 1, 10)))
+                .catch(i => new SafePromise(delayedResolutionOf(i + 1, 10)))
+                .then(i => new SafePromise(delayedRejectionOf(i + 1, 10)))
+                .catch(i => new SafePromise(delayedResolutionOf(i + 1, 10)))
+                .perform();
+        });
     });
 
     function delayedResolutionOf(value, delay) {
