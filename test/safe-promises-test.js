@@ -6,7 +6,7 @@ let safePromises = require('../lib/safe-promises');
 
 describe('SafePromise', () => {
     it('evaluates just like a regular promise', (done) => {
-        let SafePromise = safePromises.failWith(done);
+        let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
         SafePromise.resolve(7)
             .then(value => value + 1)
             .then(value => {
@@ -18,7 +18,7 @@ describe('SafePromise', () => {
 
     it('passes rejected promises to the failure handler', (done) => {
         let expectedError = new Error('I am not good.');
-        let SafePromise = safePromises.failWith(actualError => {
+        let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
             expect(actualError).to.equal(expectedError);
             done();
         });
@@ -30,7 +30,7 @@ describe('SafePromise', () => {
 
     it('does not worry about caught rejections', (done) => {
         let expectedError = new Error('I am so broken.');
-        let SafePromise = safePromises.failWith(done);
+        let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
         SafePromise.reject(expectedError)
             .then(expectARejection(done))
             .catch(actualError => {
@@ -42,7 +42,7 @@ describe('SafePromise', () => {
 
     it('handles thrown exceptions as expected', (done) => {
         let expectedError = new Error('Whoops.');
-        let SafePromise = safePromises.failWith(done);
+        let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
         SafePromise.resolve(99)
             .then(() => { throw expectedError; })
             .then(expectARejection(done))
@@ -54,7 +54,7 @@ describe('SafePromise', () => {
     });
 
     it('returns the Promise value on performing for further chaining', (done) => {
-        let SafePromise = safePromises.failWith(done);
+        let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
         SafePromise.resolve(12)
             .perform()
             .then(value => {
@@ -65,7 +65,7 @@ describe('SafePromise', () => {
     });
 
     it('chains with normal Promises as well as SafePromises', (done) => {
-        let SafePromise = safePromises.failWith(done);
+        let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
         new SafePromise((resolve, reject) => resolve(42))
             .then(value => Promise.resolve(value * 2))
             .then(value => SafePromise.resolve(value + 16))
@@ -78,7 +78,7 @@ describe('SafePromise', () => {
 
     describe('construction as with `new Promise`', () => {
         it('resolves', (done) => {
-            let SafePromise = safePromises.failWith(done);
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
             new SafePromise((resolve, reject) => resolve(42))
                 .then(value => {
                     expect(value).to.equal(42);
@@ -89,7 +89,7 @@ describe('SafePromise', () => {
 
         it('rejects', (done) => {
             let expectedError = new Error('Oh no!');
-            let SafePromise = safePromises.failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
                 expect(actualError).to.equal(expectedError);
                 done();
             });
@@ -102,7 +102,7 @@ describe('SafePromise', () => {
 
     describe('.all', () => {
         it('resolves when all promises have been resolved',(done) => {
-            let SafePromise = safePromises.failWith(done);
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
             SafePromise.all([
                 1,
                 Promise.resolve(2),
@@ -119,7 +119,7 @@ describe('SafePromise', () => {
 
         it('rejects on a single rejection',(done) => {
             let expectedError = new Error('I don\'t think so.');
-            let SafePromise = safePromises.failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
                 expect(actualError).to.equal(expectedError);
                 done();
             });
@@ -138,7 +138,7 @@ describe('SafePromise', () => {
 
     describe('.race', () => {
         it('resolves as soon as the first Promise resolves', (done) => {
-            let SafePromise = safePromises.failWith(done);
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
             SafePromise.race([
                 new Promise(delayedResolutionOf(10, 0)),
                 new SafePromise(delayedResolutionOf(20, 1000))
@@ -150,7 +150,7 @@ describe('SafePromise', () => {
         });
 
         it('resolves as soon as the first SafePromise resolves', (done) => {
-            let SafePromise = safePromises.failWith(done);
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
             SafePromise.race([
                 new Promise(delayedResolutionOf(10, 1000)),
                 new SafePromise(delayedResolutionOf(20, 0))
@@ -164,7 +164,7 @@ describe('SafePromise', () => {
 
         it('rejects as soon as the first Promise rejects', (done) => {
             let expectedError = new Error('You lost.');
-            let SafePromise = safePromises.failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
                 expect(actualError).to.equal(expectedError);
                 done();
             });
@@ -179,7 +179,7 @@ describe('SafePromise', () => {
 
         it('rejects as soon as the first SafePromise rejects', (done) => {
             let expectedError = new Error('You lost.');
-            let SafePromise = safePromises.failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
                 expect(actualError).to.equal(expectedError);
                 done();
             });
@@ -189,6 +189,20 @@ describe('SafePromise', () => {
                 new SafePromise(delayedRejectionOf(expectedError, 0))
             ])
                 .then(expectARejection(done))
+                .perform();
+        });
+    });
+
+    describe('timing out', () => {
+        it('times out if the constructor takes too long', (done) => {
+            let SafePromise = safePromises.timeOutAfter(100).failWith(actualError => {
+                expect(actualError.message).to.equal('Timed out after 100 milliseconds.');
+                done();
+            });
+
+            new SafePromise((resolve, reject) => {
+                setTimeout(resolve, 200, 'Yup.');
+            })
                 .perform();
         });
     });
