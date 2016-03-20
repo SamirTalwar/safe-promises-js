@@ -69,8 +69,14 @@ describe('SafePromise', () => {
         new SafePromise((resolve, reject) => resolve(42))
             .then(value => Promise.resolve(value * 2))
             .then(value => SafePromise.resolve(value + 16))
+            .then(value => new Promise((resolve, reject) => {
+                resolve(value + 50);
+            }))
+            .then(value => new SafePromise((resolve, reject) => {
+                resolve(value * 2);
+            }))
             .then(value => {
-                expect(value).to.equal(100);
+                expect(value).to.equal(300);
                 done();
             })
             .perform();
@@ -203,6 +209,17 @@ describe('SafePromise', () => {
             new SafePromise((resolve, reject) => {
                 setTimeout(resolve, 200, 'Yup.');
             })
+                .perform();
+        });
+
+        it('times out if `then` takes too long', (done) => {
+            let SafePromise = safePromises.timeOutAfter(50).failWith(actualError => {
+                expect(actualError.message).to.equal('Timed out after 50 milliseconds.');
+                done();
+            });
+
+            SafePromise.resolve(10)
+                .then(value => new Promise(delayedResolutionOf(20, 100)))
                 .perform();
         });
     });
