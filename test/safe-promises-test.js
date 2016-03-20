@@ -236,6 +236,17 @@ describe('SafePromise', () => {
                 .then(value => new Promise(delayedResolutionOf(20, 100)))
                 .perform();
         });
+
+        it('times out if `catch` takes too long', (done) => {
+            let SafePromise = safePromises.timeOutAfter(20).failWith(actualError => {
+                expect(actualError.message).to.equal('Timed out after 20 milliseconds.');
+                done();
+            });
+
+            SafePromise.reject(new Error('Hi!'))
+                .catch(error => new Promise(delayedResolutionOf('Hi right back!', 50)))
+                .perform();
+        });
     });
 
     function delayedResolutionOf(value, delay) {
