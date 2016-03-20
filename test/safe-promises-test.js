@@ -64,6 +64,20 @@ describe('SafePromise', () => {
             .catch(done);
     });
 
+    it('does as expected when the failure handler fails', (done) => {
+        let expectedError = new Error('Handler failure.');
+        let SafePromise = safePromises.timeOutAfter(1000).failWith(error => {
+            throw expectedError;
+        });
+        SafePromise.reject(new Error('Nah.'))
+            .then(expectARejection(done))
+            .perform()
+            .catch(actualError => {
+                expect(actualError).to.equal(expectedError);
+                done();
+            });
+    });
+
     it('chains with normal Promises as well as SafePromises', (done) => {
         let SafePromise = safePromises.timeOutAfter(1000).failWith(done);
         new SafePromise((resolve, reject) => resolve(42))
