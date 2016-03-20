@@ -247,6 +247,28 @@ describe('SafePromise', () => {
                 .catch(error => new Promise(delayedResolutionOf('Hi right back!', 50)))
                 .perform();
         });
+
+        it('times out if the entire series of operations takes too long', (done) => {
+            let SafePromise = safePromises.timeOutAfter(100).failWith(reportErrorsTo(done, actualError => {
+                expect(actualError.message).to.equal('Timed out after 100 milliseconds.');
+                done();
+            }));
+
+            SafePromise.resolve(0)
+                .then(i => new Promise(delayedRejectionOf(i + 1, 10)))
+                .catch(i => new Promise(delayedResolutionOf(i + 1, 10)))
+                .then(i => new Promise(delayedRejectionOf(i + 1, 10)))
+                .catch(i => new Promise(delayedResolutionOf(i + 1, 10)))
+                .then(i => new Promise(delayedRejectionOf(i + 1, 10)))
+                .catch(i => new Promise(delayedResolutionOf(i + 1, 10)))
+                .then(i => new Promise(delayedRejectionOf(i + 1, 10)))
+                .catch(i => new Promise(delayedResolutionOf(i + 1, 10)))
+                .then(i => new Promise(delayedRejectionOf(i + 1, 10)))
+                .catch(i => new Promise(delayedResolutionOf(i + 1, 10)))
+                .then(i => new Promise(delayedRejectionOf(i + 1, 10)))
+                .catch(i => new Promise(delayedResolutionOf(i + 1, 10)))
+                .perform();
+        });
     });
 
     function delayedResolutionOf(value, delay) {
