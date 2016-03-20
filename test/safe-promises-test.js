@@ -18,10 +18,10 @@ describe('SafePromise', () => {
 
     it('passes rejected promises to the failure handler', (done) => {
         let expectedError = new Error('I am not good.');
-        let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
+        let SafePromise = safePromises.timeOutAfter(1000).failWith(reportErrorsTo(done, actualError => {
             expect(actualError).to.equal(expectedError);
             done();
-        });
+        }));
 
         SafePromise.reject(expectedError)
             .then(expectARejection(done))
@@ -109,10 +109,10 @@ describe('SafePromise', () => {
 
         it('rejects', (done) => {
             let expectedError = new Error('Oh no!');
-            let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(reportErrorsTo(done, actualError => {
                 expect(actualError).to.equal(expectedError);
                 done();
-            });
+            }));
 
             new SafePromise((resolve, reject) => reject(expectedError))
                 .then(expectARejection(done))
@@ -139,10 +139,10 @@ describe('SafePromise', () => {
 
         it('rejects on a single rejection',(done) => {
             let expectedError = new Error('I don\'t think so.');
-            let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(reportErrorsTo(done, actualError => {
                 expect(actualError).to.equal(expectedError);
                 done();
-            });
+            }));
 
             SafePromise.all([
                 1,
@@ -184,10 +184,10 @@ describe('SafePromise', () => {
 
         it('rejects as soon as the first Promise rejects', (done) => {
             let expectedError = new Error('You lost.');
-            let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(reportErrorsTo(done, actualError => {
                 expect(actualError).to.equal(expectedError);
                 done();
-            });
+            }));
 
             SafePromise.race([
                 new Promise(delayedRejectionOf(expectedError, 0)),
@@ -199,10 +199,10 @@ describe('SafePromise', () => {
 
         it('rejects as soon as the first SafePromise rejects', (done) => {
             let expectedError = new Error('You lost.');
-            let SafePromise = safePromises.timeOutAfter(1000).failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(1000).failWith(reportErrorsTo(done, actualError => {
                 expect(actualError).to.equal(expectedError);
                 done();
-            });
+            }));
 
             SafePromise.race([
                 new Promise(delayedResolutionOf(10, 1000)),
@@ -215,10 +215,10 @@ describe('SafePromise', () => {
 
     describe('timing out', () => {
         it('times out if the constructor takes too long', (done) => {
-            let SafePromise = safePromises.timeOutAfter(100).failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(100).failWith(reportErrorsTo(done, actualError => {
                 expect(actualError.message).to.equal('Timed out after 100 milliseconds.');
                 done();
-            });
+            }));
 
             new SafePromise((resolve, reject) => {
                 setTimeout(resolve, 200, 'Yup.');
@@ -227,10 +227,10 @@ describe('SafePromise', () => {
         });
 
         it('times out if `then` takes too long', (done) => {
-            let SafePromise = safePromises.timeOutAfter(50).failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(50).failWith(reportErrorsTo(done, actualError => {
                 expect(actualError.message).to.equal('Timed out after 50 milliseconds.');
                 done();
-            });
+            }));
 
             SafePromise.resolve(10)
                 .then(value => new Promise(delayedResolutionOf(20, 100)))
@@ -238,10 +238,10 @@ describe('SafePromise', () => {
         });
 
         it('times out if `catch` takes too long', (done) => {
-            let SafePromise = safePromises.timeOutAfter(20).failWith(actualError => {
+            let SafePromise = safePromises.timeOutAfter(20).failWith(reportErrorsTo(done, actualError => {
                 expect(actualError.message).to.equal('Timed out after 20 milliseconds.');
                 done();
-            });
+            }));
 
             SafePromise.reject(new Error('Hi!'))
                 .catch(error => new Promise(delayedResolutionOf('Hi right back!', 50)))
@@ -264,6 +264,16 @@ describe('SafePromise', () => {
     function expectARejection(done) {
         return value => {
             done(new Error(`Expected a rejected promise, but got ${value}.`));
+        };
+    }
+
+    function reportErrorsTo(done, failureHandler) {
+        return (error) => {
+            try {
+                failureHandler(error);
+            } catch (handlerError) {
+                done(handlerError);
+            }
         };
     }
 });
