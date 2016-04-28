@@ -220,9 +220,7 @@ describe('SafePromise', () => {
                 done();
             }));
 
-            new SafePromise((resolve, reject) => {
-                setTimeout(resolve, 200, 'Yup.');
-            })
+            new SafePromise(delayedResolutionOf('Yup.', 200))
                 .perform();
         });
 
@@ -298,6 +296,18 @@ describe('SafePromise', () => {
                     expect(actualError).to.equal(subsequentError);
                     done();
                 });
+        });
+
+        it('allows for a custom timeout error object', (done) => {
+            let SafePromise = safePromises
+                .timeOutAfter(50, (timeout) => new Error(`You win ${timeout} points!`))
+                .failWith(reportErrorsTo(done, actualError => {
+                    expect(actualError.message).to.equal('You win 50 points!');
+                    done();
+                }));
+
+            new SafePromise(delayedResolutionOf('Meh.', 100))
+                .perform();
         });
     });
 
