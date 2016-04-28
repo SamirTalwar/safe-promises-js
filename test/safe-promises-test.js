@@ -283,6 +283,22 @@ describe('SafePromise', () => {
                 .catch(i => new SafePromise(delayedResolutionOf(i + 1, 10)))
                 .perform();
         });
+
+        it('is fulfilled with the result of the error handler on timeout', (done) => {
+            let subsequentError = new Error('And fail some more.');
+            let SafePromise = safePromises.timeOutAfter(20).failWith(actualError => {
+                expect(actualError.message).to.equal('Timed out after 20 milliseconds.');
+                return new Promise((resolve, reject) => setTimeout(reject, 100, subsequentError));
+            });
+
+            new SafePromise(delayedResolutionOf('Yello.', 50))
+                .perform()
+                .then(value => done(new Error(`Expected the promise to time out, but got ${JSON.stringify(value)}.`)))
+                .catch(actualError => {
+                    expect(actualError).to.equal(subsequentError);
+                    done();
+                });
+        });
     });
 
     function delayedResolutionOf(value, delay) {
@@ -299,7 +315,7 @@ describe('SafePromise', () => {
 
     function expectARejection(done) {
         return value => {
-            done(new Error(`Expected a rejected promise, but got ${value}.`));
+            done(new Error(`Expected a rejected promise, but got ${JSON.stringify(value)}.`));
         };
     }
 
